@@ -1,0 +1,433 @@
+#include <stdio.h>
+#include <conio.h>
+#include"stdafx.h"
+#include "resource.h"
+#include<ctime>
+
+
+BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+HWND hStatic1,hButton,hDialog,hAbout;
+int  dx, dy;
+//TCHAR szCoordinates[20],rec[6];
+HINSTANCE hInst;
+int ball_top,ball_right,board_right;
+int switc,difficult,level,points,off=0;
+TCHAR* str;
+TCHAR* str2;
+HMENU hMenu;
+HBITMAP hBit1,hBit2,hBit3;
+//HDC       hdc, hdcMem;
+HWND hImage;
+RECT rect;
+int record;
+HANDLE hFile;
+
+
+
+
+
+//COLORREF col1=RGB(80,80,80),col2=RGB(0,0,0);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszCmdLine, int nCmdShow)
+{
+
+	hInst = hInstance;
+	return DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DlgProc); 
+}
+//BOOL InitInstance()
+//{
+//	void SetDialogBkColor( COLORREF clrCtlBk = RGB(0, 0, 0), COLORREF clrCtlText = RGB(255, 255, 255) );
+//	return TRUE;
+//}
+
+//if (message == WM_ERASEBKGND) {
+//	HDC hDC = (HDC) wParam;
+//	CRect rect;
+//	GetClientRect(&rect);
+//	FillRect(hDC, (LPRECT) rect, (HBRUSH) brush);
+//	return NULL;
+//} else if (message == WM_CTLCOLOR) {
+//	return (LONG) (HBRUSH) brush;
+//}
+//return CDialog::WindowProc(message, wParam, lParam);
+//
+//CBitmap bmp;
+//bmp.LoadBitmap(IDB_DLGBACK);
+//brush.CreatePatternBrush(&bmp);
+//
+
+
+
+int ReadCounter() {
+	DWORD  dwTemp;
+	int dwCounter;
+	HANDLE hFile = CreateFile(L"./rec.txt", GENERIC_READ, 0, NULL,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	ReadFile(hFile, &dwCounter, sizeof(dwCounter), &dwTemp, NULL);
+	CloseHandle(hFile);
+	return dwCounter;
+}
+//"E:\\rec.txt"
+VOID WriteCounter(int dwCounter) {
+	DWORD dwTemp;
+	HANDLE hFile = CreateFile(TEXT("./rec.txt"), GENERIC_WRITE, 0, NULL,
+		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	WriteFile(hFile, &dwCounter, sizeof(dwCounter), &dwTemp, NULL);
+	CloseHandle(hFile);
+}
+
+/*int File(int record)
+{
+FILE *rec;
+if((rec=fopen("./rec.txt","r"))==NULL)
+{
+fclose(rec);
+rec=fopen("./rec.txt","w");
+fprintf( rec, "%d", record);
+fclose(rec);
+}
+else rec=fopen("./rec.txt","r");
+int recor;
+fgets("%d",recor, rec);
+if(recor<record)
+{	fclose(rec);
+
+rec=fopen("./rec.txt","w");
+fprintf( rec, "%d", record);
+fclose(rec);
+return record;
+}
+else return recor;    
+}
+*/
+//SetDialogBkColor(col1 ,col2 );
+void enable_menu(int record)
+{
+	if((record>=80)&&(off!=1))
+	{	
+		EnableMenuItem(hMenu, ID_lvl2, MF_BYCOMMAND | MF_ENABLED );
+		EnableMenuItem(hMenu, ID_mid, MF_BYCOMMAND | MF_ENABLED );
+		if(record>=220)
+		{
+			EnableMenuItem(hMenu, ID_lvl3, MF_BYCOMMAND | MF_ENABLED );
+			EnableMenuItem(hMenu, ID_hard, MF_BYCOMMAND | MF_ENABLED );
+			off=1;
+		}
+	}
+}
+
+
+
+
+
+
+
+// static HBRUSH hbrBkgnd = CreateSolidBrush(RGB(230,230,230));
+// HDC hdcStatic = ((HDC)wParam);
+// SetTextColor(hdcStatic, RGB(255,255,255));
+// SetBkColor(hdcStatic, RGB(0,0,0));
+
+//  SetTextColor((HDC)wParam, 0x00000000); // Не работает
+//   SetBkMode((HDC)wParam, TRANSPARENT); // Не работает
+//    return (INT_PTR)CreateSolidBrush(0x00FFFFFF);
+// break;
+
+
+
+
+
+/*
+static HBRUSH hbrBkgnd = CreateSolidBrush(RGB(230,230,230));
+HDC hdcStatic = (HDC) wParam;
+SetTextColor(hdcStatic, RGB(255,255,255));
+SetBkColor(hdcStatic, RGB(0,0,0));
+
+if (hbrBkgnd == NULL)
+{
+hbrBkgnd = CreateSolidBrush(RGB(0,0,0));
+}
+return (INT_PTR)hbrBkgnd;
+*/
+HDC hdcStatic;
+HDC hDC;
+PAINTSTRUCT ps;
+RECT re;
+/*
+void form_paint(HWND hWnd,HDC HDc)
+{
+SetTextColor (HDc, RGB(0, 0, 0));
+SetBkMode (HDc, OPAQUE);
+TextOut (HDc, 0, 0, L"Text", 4);
+ReleaseDC (hWnd, HDc);
+return;
+}
+*/
+//CBitmap m_bmpBack;
+// VERIFY(m_bmpBack.LoadBitmap(IDB_BITMAP2));
+//  VERIFY(m_brushBack.CreatePatternBrush(&m_bmpBack));
+//HBRUSH hBrush = NULL;
+//     hBrush = (HBRUSH)m_brushBack;
+
+HBRUSH brush;
+RECT rec;
+
+
+BOOL CALLBACK PifProc(HWND hdlg, UINT messg, WPARAM wParam, LPARAM lParam)
+{
+	switch (messg)
+	{
+	case WM_INITDIALOG:
+		
+		return TRUE;
+
+	case WM_COMMAND:
+		switch(LOWORD(wParam))
+			{
+			case IDC_BUTTON1:
+				EndDialog(hdlg, 0); 
+				break;
+			}
+		break;
+	case WM_CLOSE:
+		EndDialog(hdlg, 0); 
+		break;
+		
+			
+		default: return false;
+		}
+	}
+	BOOL CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		switch(message)
+		{
+		case WM_CLOSE:
+			EndDialog(hWnd, 0); 
+			return TRUE;
+		case WM_INITDIALOG:
+			//InitInstance();
+			//		hFile = CreateFile(TEXT("E:\\rec.txt"), GENERIC_WRITE, 0, NULL,
+			//		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			CloseHandle(hFile);
+			hDialog=hWnd;
+			//	hAbout=GetDlgItem(IDD_ABOUTBOX;
+			hStatic1 = GetDlgItem(hWnd, IDC_STATIC1);
+			hButton = GetDlgItem(hWnd, IDC_BUTTON1);
+			srand(time(NULL));
+			dx = 4;
+			dy = 4;
+			ball_top=40;
+			ball_right=100;
+			switc=1;
+			GetWindowRect(hWnd, &rect);
+			hMenu = LoadMenu(GetModuleHandle(0), MAKEINTRESOURCE(IDR_MENU1));
+			SetMenu(hDialog, hMenu);
+			difficult=3;
+			level=100;
+			points=0;
+			record=0;
+			str=new TCHAR[100];
+			str2=new TCHAR[100];
+			points=0;
+			CheckMenuItem(hMenu, ID_hard, MF_BYCOMMAND | MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_mid, MF_BYCOMMAND | MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_lvl3, MF_BYCOMMAND | MF_UNCHECKED);
+			CheckMenuItem(hMenu, ID_lvl2, MF_BYCOMMAND | MF_UNCHECKED);
+
+			EnableMenuItem(hMenu, ID_hard, MF_BYCOMMAND | MF_GRAYED );
+			EnableMenuItem(hMenu, ID_mid, MF_BYCOMMAND | MF_GRAYED);
+			EnableMenuItem(hMenu, ID_lvl3, MF_BYCOMMAND | MF_GRAYED );
+			EnableMenuItem(hMenu, ID_lvl2, MF_BYCOMMAND | MF_GRAYED);
+
+			if(ReadCounter()!=0)
+			{
+				record=ReadCounter();
+				enable_menu(record);
+			}
+			//
+			//EnableMenuItem(hMenu, ID_DEL, MF_BYCOMMAND | MF_ENABLED );
+			//
+			/*hdc=GetDC(hWnd);
+			hdcMem = CreateCompatibleDC(hdc);
+			SelectObject(hdcMem, hBit1);
+			BitBlt(hdc, 0, 0, rect.right,  rect.bottom, hdcMem, 0, 0, SRCCOPY);
+
+			hdc = BeginPaint(hWnd, NULL );
+
+
+			BitBlt(hdc, 0, 0, 640, 480, hdcMem, 0, 0, SRCCOPY); //выводим на экран содержимое memDc
+			Обратите внимание на размеры и координаты. 640*480 это размеры окна 
+
+			EndPaint(hWnd,NULL);*/
+			//
+			return TRUE;
+			//		case WM_PAINT:
+
+			// hDC=CreateDC(TEXT("DISPLAY"),NULL,NULL,NULL);
+
+			//brush = CreateSolidBrush(RGB(0, 0, 150));
+
+			//FillRect(hDC, &rect, brush);
+
+			//DeleteObject(brush);
+
+			//hBit2=LoadBitmap(hInst,L"IDB_BITMAP2");
+			//  brush=CreatePatternBrush(hBit2);
+
+			/*hDC = (HDC) wParam;rect;
+			rect.left=300;
+			rect.right=1000;
+			rect.top=500;
+			rect.bottom=2000;
+			//GetClientRect(&rec);
+			FillRect(hDC, & rec, (HBRUSH)(RGB(40,151,151)));
+			return NULL;
+
+			hDC = BeginPaint(hWnd, &ps);
+			form_paint(hWnd,hDC);
+			EndPaint(hWnd, &ps);
+			*/
+			//return TRUE;
+
+
+		case WM_COMMAND:
+			switch(LOWORD(wParam))
+			{
+			case ID_es:
+				difficult=3;
+				CheckMenuItem(hMenu, ID_hard, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu, ID_mid, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu,ID_es, MF_BYCOMMAND | MF_CHECKED);
+				return TRUE;
+			case ID_mid:
+				difficult=5;
+				CheckMenuItem(hMenu, ID_hard, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu, ID_es, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu,ID_mid, MF_BYCOMMAND | MF_CHECKED);
+				return TRUE;
+			case ID_hard:
+				difficult=7;
+				CheckMenuItem(hMenu, ID_mid, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu, ID_es, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu,ID_hard, MF_BYCOMMAND | MF_CHECKED);
+				return TRUE;
+			case ID_lvl1:
+				level=100;
+				CheckMenuItem(hMenu, ID_lvl3, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu, ID_lvl2, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu,ID_lvl1, MF_BYCOMMAND | MF_CHECKED);
+				return TRUE;
+			case ID_lvl2:
+				level=66;
+				CheckMenuItem(hMenu, ID_lvl1, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu, ID_lvl3, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu,ID_lvl2, MF_BYCOMMAND | MF_CHECKED);
+				return TRUE;
+			case ID_lvl3:
+				level=33;
+				CheckMenuItem(hMenu, ID_lvl1, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu, ID_lvl2, MF_BYCOMMAND | MF_UNCHECKED);
+				CheckMenuItem(hMenu,ID_lvl3, MF_BYCOMMAND | MF_CHECKED);
+				return TRUE;
+
+			case ID_about:
+
+				DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)PifProc);
+				return TRUE;
+
+			case ID_rec:
+				wsprintf(str2, TEXT("Reocord: %d"),ReadCounter());
+				MessageBox(hWnd,str2,L"Records",MB_OK | MB_ICONASTERISK);
+				return TRUE;
+
+			case ID_exit:
+				EndDialog(hWnd, 0); 
+				return TRUE;
+
+			case ID_del:
+				DeleteFile(L"./rec.txt");
+				WriteCounter(0);	
+				record=0;
+				points=0;
+				return TRUE;
+
+			}
+
+		case WM_RBUTTONDOWN:
+			switc*=-1;
+			KillTimer(hWnd,1);
+			if(switc!=1)
+				SetWindowText(hWnd, L"                                                         GAME PAUSED");
+			return TRUE;
+
+
+
+		case WM_TIMER:
+			wsprintf(str, TEXT("                                                         Your Points:%d"),points);
+			SetWindowText(hWnd, str);
+			InvalidateRect(hStatic1, NULL, TRUE);
+			UpdateWindow(hStatic1);
+			InvalidateRect(hButton, NULL, TRUE);
+			UpdateWindow(hButton);
+
+			ball_right=ball_right + dx;
+			ball_top = ball_top + dy;
+			MoveWindow(hStatic1,	ball_right,ball_top,30,30,true);
+			//MessageBox(hWnd,TEXT("X=%d"), L"Dwdadw",MB_OK | MB_ICONASTERISK);
+
+			//
+			if (ball_top >= rect.bottom-60)
+			{
+				ball_top=30;
+				switc*=-1;
+				KillTimer(hWnd,1);
+				if(switc!=1)
+					SetWindowText(hWnd, L"                                                         GAME PAUSED");
+				wsprintf(str, TEXT("You collected %d points"),points);
+				MessageBox(hWnd,str, L"Game Over",MB_OK | MB_ICONASTERISK);
+				if((record=ReadCounter())<points)
+				{record=points;
+				WriteCounter(record);	}
+				enable_menu(record);
+				points=0;
+			}
+			//
+			if (ball_top  <= 0 )
+
+				dy *=-1;
+			if (ball_right >= rect.right-30)
+				dx *=-1;
+
+			if (ball_right  <= 0)
+
+				dx *=-1;
+			if((ball_right  <=20)&&(ball_right>=board_right-20))
+			{
+				dx *=-1;
+			}
+			if ((ball_top >=rect.bottom-101)&&(ball_right>=board_right-20)&&(ball_right<=board_right+level/2))
+			{
+				dy = (rand()%difficult+difficult) * -1;
+				dx = (rand()%difficult+difficult)*-1;
+				points+=(((difficult-1)/2)*1000)/level;
+			}
+			if ((ball_top >=rect.bottom-101)&&(ball_right>=board_right+level/2)&&(ball_right<=board_right+level))
+			{
+				dy = (rand()%difficult+difficult) * -1;
+				dx = (rand()%difficult+difficult)*+1;
+				points+=(((difficult-1)/2)*1000)/level;
+			}
+			return TRUE;
+
+
+		case WM_MOUSEMOVE:		
+			if(switc==1)
+			{
+				SetTimer(hWnd, 1, 10, NULL);
+				if(LOWORD(lParam)+level<=rect.right)
+					board_right=LOWORD(lParam);
+				MoveWindow(hButton,LOWORD(lParam),rect.bottom-70,level,10,true);
+			}
+			return TRUE;		
+		}
+		return FALSE;
+	}
